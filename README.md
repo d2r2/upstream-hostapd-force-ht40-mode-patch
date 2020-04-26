@@ -14,7 +14,7 @@ Remember that this change is in violation of IEEE Std 802.11-2012, 10.15.3.2 and
 
 Disclamer 2
 -----------
-I'm not recommended to use hostapd with wifi hardware adapters based on Realtek chipsets. My personal experience demonstrate - Realtek had bad support of nl80211 netlink interface, and, as a result, hostapd behavior looks buggy with Realtek hardware. Opposite - and this is again from my personal experience - Ralink network devices work stably and reliably with hostapd.
+I'm not recommended to use hostapd with wifi hardware adapters based on Realtek chipsets. My personal experience demonstrate - Realtek had bad support of nl80211 netlink interface, and, as a result, hostapd behavior looks buggy with Realtek hardware. Opposite - and this is again from my personal experience - Ralink network devices work much more stably and reliably with hostapd.
 
 
 Compilation and installation
