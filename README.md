@@ -4,9 +4,7 @@ Patch for upstream hostapd to force 40MHz operation
 This patch is completely based on beautiful hostapd fork: https://github.com/ivkos/hostap-force-ht40.
 
 Purpose of this project - to get hostapd installation which work good in modern urban conditions,
-where radio air is filled with neighboring Wi-Fi points.
-Without this modification hostapd service regularly fallback to 20MHz mode, reporting that there are
-overlapping BSSes exist around.
+where radio air is filled with neighboring Wi-Fi points. Without this modification hostapd service regularly fallback to 20MHz mode, reporting that there are overlapping BSSes exist around.
 
 Aim of this project - to have minimal patch for upstream hostapd release, without necessity to keep the whole hostapd branch in sync with upstream sources.
 
@@ -16,9 +14,7 @@ Remember that this change is in violation of IEEE Std 802.11-2012, 10.15.3.2 and
 
 Disclamer 2
 -----------
-I'm not recommended to use hostapd with wifi hardware adapters based on Realtek chipsets. My personal experience demonstrate -
-Realtek had bad support of nl80211 netlink interface, and, as a result, hostapd behavior looks buggy with Realtek hardware.
-Opposite - and this is again from my personal experience - Ralink network devices work stably and reliably with hostapd.
+I'm not recommended to use hostapd with wifi hardware adapters based on Realtek chipsets. My personal experience demonstrate - Realtek had bad support of nl80211 netlink interface, and, as a result, hostapd behavior looks buggy with Realtek hardware. Opposite - and this is again from my personal experience - Ralink network devices work stably and reliably with hostapd.
 
 
 Compilation and installation
