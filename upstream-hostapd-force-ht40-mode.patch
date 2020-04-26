@@ -53,8 +53,8 @@ diff -Naurp -x '*.o' -x '*.d' ./src/ap/ap_config.h ../../hostapd-force-ht40/host
  	int no_pri_sec_switch;
 diff -Naurp -x '*.o' -x '*.d' ./src/ap/hw_features.c ../../hostapd-force-ht40/hostapd-2.9/src/ap/hw_features.c
 --- ./src/ap/hw_features.c	2019-08-07 19:25:25.000000000 +0600
-+++ ../../hostapd-force-ht40/hostapd-2.9/src/ap/hw_features.c	2020-04-26 00:55:11.718310889 +0600
-@@ -310,12 +310,13 @@ static void ieee80211n_check_scan(struct
++++ ../../hostapd-force-ht40/hostapd-2.9/src/ap/hw_features.c	2020-04-26 15:45:57.265177510 +0600
+@@ -310,7 +310,7 @@ static void ieee80211n_check_scan(struct
  	wpa_scan_results_free(scan_res);
  
  	iface->secondary_ch = iface->conf->secondary_channel;
@@ -63,28 +63,6 @@ diff -Naurp -x '*.o' -x '*.d' ./src/ap/hw_features.c ../../hostapd-force-ht40/ho
  		wpa_printf(MSG_INFO, "20/40 MHz operation not permitted on "
  			   "channel pri=%d sec=%d based on overlapping BSSes",
  			   iface->conf->channel,
- 			   iface->conf->channel +
- 			   iface->conf->secondary_channel * 4);
-+		wpa_printf(MSG_INFO, "!!!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$!!!");
- 		iface->conf->secondary_channel = 0;
- 		if (iface->drv_flags & WPA_DRIVER_FLAGS_HT_2040_COEX) {
- 			/*
-@@ -328,6 +329,7 @@ static void ieee80211n_check_scan(struct
- 
- 	res = ieee80211n_allowed_ht40_channel_pair(iface);
- 	if (!res) {
-+		wpa_printf(MSG_INFO, "!!!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$!!!");
- 		iface->conf->secondary_channel = 0;
- 		hostapd_set_oper_centr_freq_seg0_idx(iface->conf, 0);
- 		hostapd_set_oper_centr_freq_seg1_idx(iface->conf, 0);
-@@ -459,6 +461,7 @@ static void ap_ht40_scan_retry(void *elo
- 
- 	wpa_printf(MSG_DEBUG,
- 		   "Failed to request a scan in device, bringing up in HT20 mode");
-+	wpa_printf(MSG_INFO, "!!!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$!!!");
- 	iface->conf->secondary_channel = 0;
- 	iface->conf->ht_capab &= ~HT_CAP_INFO_SUPP_CHANNEL_WIDTH_SET;
- 	hostapd_setup_interface_complete(iface, 0);
 diff -Naurp -x '*.o' -x '*.d' ./src/ap/ieee802_11_ht.c ../../hostapd-force-ht40/hostapd-2.9/src/ap/ieee802_11_ht.c
 --- ./src/ap/ieee802_11_ht.c	2019-08-07 19:25:25.000000000 +0600
 +++ ../../hostapd-force-ht40/hostapd-2.9/src/ap/ieee802_11_ht.c	2020-04-25 23:38:43.842733174 +0600
