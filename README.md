@@ -33,7 +33,7 @@ Compilation and installation
 Tested with equipment
 ---------------------
 
-* Orance PI Zero Plus with external WiFi adapter COMFAST CF-WU7300ND (Ralink RT5372 chipset).
+* Orance PI Zero Plus with external WiFi adapter COMFAST CF-WU7300ND (Ralink RT3072 chipset) 2.4Ghz.
 
 Contact
 -------
