@@ -1,0 +1,127 @@
+diff -Naurp -x '*.o' -x '*.d' ./hostapd/config_file.c ../../hostapd-force-ht40/hostapd-2.9/hostapd/config_file.c
+--- ./hostapd/config_file.c	2019-08-07 19:25:25.000000000 +0600
++++ ../../hostapd-force-ht40/hostapd-2.9/hostapd/config_file.c	2020-04-25 23:30:11.860816115 +0600
+@@ -3419,6 +3419,8 @@ static int hostapd_config_fill(struct ho
+ 				   line);
+ 			return 1;
+ 		}
++	} else if (os_strcmp(buf, "force_ht40") == 0) {
++		conf->force_ht40 = atoi(pos);
+ 	} else if (os_strcmp(buf, "require_ht") == 0) {
+ 		conf->require_ht = atoi(pos);
+ 	} else if (os_strcmp(buf, "obss_interval") == 0) {
+diff -Naurp -x '*.o' -x '*.d' ./hostapd/hostapd.conf ../../hostapd-force-ht40/hostapd-2.9/hostapd/hostapd.conf
+--- ./hostapd/hostapd.conf	2019-08-07 19:25:25.000000000 +0600
++++ ../../hostapd-force-ht40/hostapd-2.9/hostapd/hostapd.conf	2020-04-25 23:26:58.523807018 +0600
+@@ -594,6 +594,14 @@ wmm_ac_vo_acm=0
+ # L-SIG TXOP protection support: [LSIG-TXOP-PROT] (disabled if not set)
+ #ht_capab=[HT40-][SHORT-GI-20][SHORT-GI-40]
+ 
++
++# Skip checks for 40 MHz intolerance or overlapping stations and force
++# 40 MHz channel width
++# Please note that this violates IEEE Std 802.11-2012, 10.15.3.2
++# 0 = disabled (default)
++# 1 = enabled
++#force_ht40=0
++
+ # Require stations to support HT PHY (reject association if they do not)
+ #require_ht=1
+ 
+diff -Naurp -x '*.o' -x '*.d' ./src/ap/ap_config.c ../../hostapd-force-ht40/hostapd-2.9/src/ap/ap_config.c
+--- ./src/ap/ap_config.c	2019-08-07 19:25:25.000000000 +0600
++++ ../../hostapd-force-ht40/hostapd-2.9/src/ap/ap_config.c	2020-04-25 23:32:57.706657234 +0600
+@@ -225,6 +225,8 @@ struct hostapd_config * hostapd_config_d
+ 
+ 	conf->ht_capab = HT_CAP_INFO_SMPS_DISABLED;
+ 
++	conf->force_ht40 = 0;
++
+ 	conf->ap_table_max_size = 255;
+ 	conf->ap_table_expiration_time = 60;
+ 	conf->track_sta_max_age = 180;
+diff -Naurp -x '*.o' -x '*.d' ./src/ap/ap_config.h ../../hostapd-force-ht40/hostapd-2.9/src/ap/ap_config.h
+--- ./src/ap/ap_config.h	2019-08-07 19:25:25.000000000 +0600
++++ ../../hostapd-force-ht40/hostapd-2.9/src/ap/ap_config.h	2020-04-25 23:33:24.546357399 +0600
+@@ -932,6 +932,7 @@ struct hostapd_config {
+ 
+ 	int ht_op_mode_fixed;
+ 	u16 ht_capab;
++	int force_ht40;
+ 	int ieee80211n;
+ 	int secondary_channel;
+ 	int no_pri_sec_switch;
+diff -Naurp -x '*.o' -x '*.d' ./src/ap/hw_features.c ../../hostapd-force-ht40/hostapd-2.9/src/ap/hw_features.c
+--- ./src/ap/hw_features.c	2019-08-07 19:25:25.000000000 +0600
++++ ../../hostapd-force-ht40/hostapd-2.9/src/ap/hw_features.c	2020-04-26 00:55:11.718310889 +0600
+@@ -310,12 +310,13 @@ static void ieee80211n_check_scan(struct
+ 	wpa_scan_results_free(scan_res);
+ 
+ 	iface->secondary_ch = iface->conf->secondary_channel;
+-	if (!oper40) {
++	if (!iface->conf->force_ht40 && !oper40) {
+ 		wpa_printf(MSG_INFO, "20/40 MHz operation not permitted on "
+ 			   "channel pri=%d sec=%d based on overlapping BSSes",
+ 			   iface->conf->channel,
+ 			   iface->conf->channel +
+ 			   iface->conf->secondary_channel * 4);
++		wpa_printf(MSG_INFO, "!!!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$!!!");
+ 		iface->conf->secondary_channel = 0;
+ 		if (iface->drv_flags & WPA_DRIVER_FLAGS_HT_2040_COEX) {
+ 			/*
+@@ -328,6 +329,7 @@ static void ieee80211n_check_scan(struct
+ 
+ 	res = ieee80211n_allowed_ht40_channel_pair(iface);
+ 	if (!res) {
++		wpa_printf(MSG_INFO, "!!!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$!!!");
+ 		iface->conf->secondary_channel = 0;
+ 		hostapd_set_oper_centr_freq_seg0_idx(iface->conf, 0);
+ 		hostapd_set_oper_centr_freq_seg1_idx(iface->conf, 0);
+@@ -459,6 +461,7 @@ static void ap_ht40_scan_retry(void *elo
+ 
+ 	wpa_printf(MSG_DEBUG,
+ 		   "Failed to request a scan in device, bringing up in HT20 mode");
++	wpa_printf(MSG_INFO, "!!!$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$!!!");
+ 	iface->conf->secondary_channel = 0;
+ 	iface->conf->ht_capab &= ~HT_CAP_INFO_SUPP_CHANNEL_WIDTH_SET;
+ 	hostapd_setup_interface_complete(iface, 0);
+diff -Naurp -x '*.o' -x '*.d' ./src/ap/ieee802_11_ht.c ../../hostapd-force-ht40/hostapd-2.9/src/ap/ieee802_11_ht.c
+--- ./src/ap/ieee802_11_ht.c	2019-08-07 19:25:25.000000000 +0600
++++ ../../hostapd-force-ht40/hostapd-2.9/src/ap/ieee802_11_ht.c	2020-04-25 23:38:43.842733174 +0600
+@@ -207,6 +207,9 @@ static int is_40_allowed(struct hostapd_
+ 	if (iface->current_mode->mode != HOSTAPD_MODE_IEEE80211G)
+ 		return 1;
+ 
++	if (iface->conf->force_ht40)
++		return 1;
++
+ 	pri_freq = hostapd_hw_get_freq(iface->bss[0], iface->conf->channel);
+ 
+ 	if (iface->conf->secondary_channel > 0)
+@@ -299,7 +302,7 @@ void hostapd_2040_coex_action(struct hos
+ 			       HOSTAPD_MODULE_IEEE80211,
+ 			       HOSTAPD_LEVEL_DEBUG,
+ 			       "20 MHz BSS width request bit is set in BSS coexistence information field");
+-		is_ht40_allowed = 0;
++		is_ht40_allowed = iface->conf->force_ht40;
+ 	}
+ 
+ 	if (bc_ie->coex_param & WLAN_20_40_BSS_COEX_40MHZ_INTOL) {
+@@ -309,7 +312,7 @@ void hostapd_2040_coex_action(struct hos
+ 			       HOSTAPD_MODULE_IEEE80211,
+ 			       HOSTAPD_LEVEL_DEBUG,
+ 			       "40 MHz intolerant bit is set in BSS coexistence information field");
+-		is_ht40_allowed = 0;
++		is_ht40_allowed = iface->conf->force_ht40;
+ 	}
+ 
+ 	/* 20/40 BSS Intolerant Channel Report element (zero or more times) */
+@@ -341,7 +344,7 @@ void hostapd_2040_coex_action(struct hos
+ 				       HOSTAPD_LEVEL_DEBUG,
+ 				       "20_40_INTOLERANT channel %d reported",
+ 				       chan);
+-			is_ht40_allowed = 0;
++			is_ht40_allowed = iface->conf->force_ht40;
+ 		}
+ 
+ 		data += 2 + ielen;
